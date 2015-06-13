@@ -1,0 +1,12 @@
+<OTA_UpdateRQ ReqRespVersion="2">
+<UniqueId URL="http://vmguys.com/OTAEngine/" Type="Profile" Id="12345678" Instance="7"/>
+<Position XPath="/Profile">
+<Root Operation="replace">
+<Profile>
+...
+<!-- include entire updated *after* image here -->
+...
+</Profile>
+</Root>
+</Position>
+</OTA_UpdateRQ>

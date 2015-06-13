@@ -1,0 +1,6 @@
+<OTA_UpdateRQ ReqRespVersion="2">
+<UniqueId URL="http://vmguys.com/OTAEngine/" Type="Profile" Id="12345678" Instance="11"/>
+<Position XPath="/Profile/Customer/AddressInfo/Address/StreetNmbr">
+<Attribute Name="PO_Box" Operation="delete"/>
+</Position>
+</OTA_UpdateRQ>

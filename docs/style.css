@@ -1,0 +1,114 @@
+body, div, span, p, .p, h1, h2, h3, ul, li, a, td ,th, select, input, textarea
+{
+	font-family: Verdana, Arial, Helvetica, Swiss, Futura, sans-serif;
+}
+
+body, p, .p, ul, li, th, td
+{
+	font-size: 13px;
+	color: darkblue;
+}
+
+table
+{
+	border-width: medium;
+	border-style: outset;
+}
+
+thead
+{
+	font-weight: bold;
+	background-color: skyblue;
+}
+
+tbody
+{
+	background-color: lightgray;
+}
+
+h1 
+{
+	font-weight: bold;
+	font-size: 24px;
+	color: #000000;
+	margin-bottom: 8px;
+	text-decoration : none;
+}
+
+h2
+{
+	font-weight: bold;
+	font-size: 18px;
+	color: #000000;
+	margin-top: 16px;
+	margin-bottom: 8px;	
+	text-decoration : none;
+}
+
+h3
+{
+	font-weight: bold;
+	text-decoration : none;
+	font-size: 15px;
+	color: darkblue;
+}
+
+a:hover 
+{
+	color: #404040;
+	text-decoration: underline;
+}
+
+th, dt 
+{
+	font-weight: bold;
+	text-align: left;
+}
+
+.linkselect
+{
+	color: #ffffff;
+}
+
+.linknormal
+{
+	color: #000000;
+}
+
+.bglight 
+{
+	background-color: #f0f0f0;
+}
+
+.bgdark 
+{
+	background-color: #dcdcdc;
+}
+
+.bgcurrent
+{
+	background-color: #f07800;
+}
+
+.bgselect
+{
+	color: #ffffff;
+	background-color: #787878;
+}
+
+.bgblue
+{
+	background-color: lightsteelblue;
+}
+
+.bgwhite
+{
+	background-color: white;
+}
+
+hr
+{
+	color: #808080;
+}
+
+

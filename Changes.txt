@@ -1,0 +1,40 @@
+Version 0.3  2001-11-19
+
+Recent changes to the XML difference finder code:
+
+DifferenceFinder now compares ALL content of two nodes. Previously, it was aimed more at configuration-type XML, where an XML tag might include just one text item in its content. Now it can be used for document-type XML, where the XML tags are used within a text document.
+
+Since all text content is now being examined, it becomes a problem for configuration-type XML because any whitespace in the configuration file gets in the way. Additional class constructors were added to set the discardWhitespace property as needed.
+
+The operation to delete content of a node was originally written to work from the context of the parent node. It was changed to work from the context of the content being deleted. This changes where the operation will appear in the output. It used to appear within the position tag that specified the parent. It now appears within the position tag of the content.
+
+Support for namespaces has been added. When two nodes are being compared, their namespaces are included in the comparison. A namespace is also specified for each of the operations so it can be used for any nodes that need to be created.
+
+An optimization was added to look for node children that are identical. It takes into account that the children may be in a different order. If found, these children are not considered again in the computations, thus eliminating much work.
+
+The computation of the cost of an operation was moved into the AbstractOperation abstract class. Each operation class that extends AbstractOperation must compute the cost of the operation.
+
+The classes that represent changes to attributes were separated. Previously there was a single class ModifyAttributeOperation, but now the classes are AttributeDeleteOperation, AttributeInsertOperation, and AttributeModifyOperation. This mirrors the classes that represent changes to elements.
+
+
+Version 0.4  2001-12-12
+
+Factored some of the code out of org.vmguys.vmtools.ota.OtaUpdate. Any code that was not OTA-specific was moved to org.vmguys.vmtools.utils.JdomPatcher.
+
+Refactored the code in DifferenceFinder to clean it up. Modified the way it looks for matching children to be faster and cleaner. Added code to explicitly change a child's position among its siblings. This was previously being done implicitly when comparing children, but this explicit move is much cleaner. The child (and its subtree) is removed and inserted at the new position, with the appropriate cost.
+
+Made changes in MinFinder. The class names have been changed to be more descriptive. (They are only known inside this module, so no other code is affected.) Corrected some errors. Added class ZeroValuesMinFinder which attempts to reduce the amount of work by eliminating non-zero costs from the array.
+
+
+Version 0.5  2002-02-11
+
+Major changes to DifferenceFinder to use a different algorithm. Since we had two versions online at the same time while the new one was being written, it is called DifferenceFinder2. To see more information about the algorithm, look for the document "Tree-to-tree Correction for Document Trees Technical Report 95-372", from the Department of Computing and Information Science, Queen's University, Kingson, Ontario, Canada. It is available on their ftp server at ftp://ftp.qucis.queensu.ca/pub/reports/1995-372.ps. We have implemented the algorithm given in chapter 3.1, which includes subtree insertion and deletion.
+
+The other modules were updated as necessary to use DifferenceFinder2. This involved the obvious change of name, as well as some minor changes to accommodate the different output it produces.
+
+Added class DomBuilder, which is used by the SAX parser when building the JDOM tree. This allows us to have custom nodes built into the JDOM tree. By placing extra information into the nodes, we have eliminated the TreeInfo structure that we built in previous versions, thus improving performance and readability. Thanks to Richard Titze (richard.titze@tin.it) for the idea and the original implementation. As a result of this change, much of the information that was recorded in AbstractOperation and its subclasses has been removed. The equivalent information can now be obtained directly from the node involved in the operation.
+
+The Xpath class has been improved for better performance. If the node in question is a type where the parent is known (Element, Comment, etc.) the path to the root can easily be found by walking up the tree, iteratively calling the getParent() method. The walk down the tree is only used when necessary.
+
+The ProgressReporter interface was created so the progress of the computation could be reported back to the user. It is implemented by XmlDiff and TestJdomDifferenceFinder. The interface has been designed to be flexible enough that it should be useful to any application, either text or GUI, using the classes.
+

@@ -1,0 +1,63 @@
+<project name="OTATools" default="all" basedir=".">
+
+	<target name="all" depends="build,build-test" description="default target; runs targets build and build-test"/>
+
+	<target name="init">
+		<property name="build.compiler" value="modern"/>
+		<property name="build" value="./build"/>
+		<property name="classes" value="./build/classes"/>
+		<property name="library" value="./build/lib"/>
+		<property name="src" value="./src"/>
+		<property name="test" value="./test"/>
+		<property name="examples" value="./examples"/>
+		<property name="dist" value="./dist"/>
+		<property name="docs" value="./docs/api"/>
+		<property name="name" value="otatools"/>
+		<property name="version" value="0.2"/>
+		<property name="javadoc.link" value="http://java.sun.com/j2se/1.3/docs/api http://java.sun.com/products/jndi/1.2/javadoc  http://java.sun.com/products/jdbc/jdbc20.stdext.javadoc "/>
+	</target>
+
+	<target name="build" depends="init" description="compiles the normal code into ./build/classes">
+		<mkdir dir="${classes}"/>
+		<mkdir dir="${library}"/>
+		<javac srcdir="${src}"      destdir="${classes}" includes="**/*.java" debug="on"/>
+		<javac srcdir="${examples}" destdir="${classes}" includes="**/*.java" debug="on"/>
+		<jar jarfile="${library}/${name}-${version}.jar" basedir="${classes}" includes="**"/> 
+	</target>
+	
+	<target name="build-test" depends="init" description="compiles the test code into ./build/classes">
+		<mkdir dir="${classes}"/>
+		<javac srcdir="${test}" destdir="${classes}" includes="**/*.java" debug="on"/>
+	</target>
+	
+	<target name="clean" depends="init" description="deletes all compiled code">
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+		<delete dir="${docs}"/>
+		<delete>
+			<fileset dir="." includes="**/*.class" />
+		</delete>
+	</target>
+	
+	<target name="docs" depends="init" description="creates javadocs in ${docs}">
+		<mkdir dir="${docs}"/>
+		<javadoc packagenames="org.vmguys.ota.utils,org.vmguys.ota.elements"
+    			 sourcepath="${src}"
+    			 destdir="${docs}"
+				 link="${javadoc.link}"
+    			 author="true"
+    			 version="true"
+    			 use="true"
+    			 windowtitle="VM Systems XML Tools"
+    			 doctitle="VM XML Tools"
+    			 bottom="Copyright &#169; 2001 VM Systems, Inc. All Rights Reserved."
+		/>
+	</target>
+
+	<target name="dist" depends="all,docs" description="Prepare a zipped distribution">
+		<mkdir dir="${dist}"/>
+		<!-- copy, copy, copy, zip -->
+	</target>
+
+</project>
+

@@ -1,0 +1,167 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+  <head>
+    <title>VM Tools User Documentation - v0.4</title>
+	<link rel="stylesheet" type="text/css" href="style.css" />
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  </head>
+  <body class="bgwhite">
+    <h1>VM Tools User Documentation - v0.4</h1>
+	<h2><a name="overview">Overview</a></h2>
+VM Tools is the beginning of a collection of 
+<a href="http://www.w3c.org/XML/">XML</a>-oriented tools for the 
+<a href="http://java.sun.com">java platform</a>. The toolkit is developed by
+<a href="http://www.vmguys.com">VM Systems, Inc.</a> and is available under an 
+<a href="http://opensource.org">open source</a> license.
+
+<p>The initial release of the toolkit contains tools for automatically
+generating differences between two XML documents and may be of particular
+interest to members of the <a href="http://opentravel.org">OpenTravel Alliance</a>
+(OTA) who have developed XML standards using a document difference representation.
+</p>
+
+  <h3><a name="features">Features</a></h3>
+The initial release has the following features:
+<ul>
+  <li>Uses sophisticated algorithm to calculate difference between two XML documents</li>
+  <li>Supports generic OTA_Update message generation/processing</li>
+  <li>The difference document generated is optimized for minimal size</li>
+  <li>Core code is generic and extensible</li>
+  <li>Designed to plug into your java application</li>
+  <li>Minimal subset XPath implementation allows use of simple XPath notation 
+      to reference change points within the source document.</li>
+</ul>
+
+  <h3><a name="limits">Limitations</a></h3>
+This implementation will work for data-oriented XML but not for document-oriented XML. 
+Specific limitations are as follows:
+<ul>
+  <li>XML comments are not supported</li>
+  <li>XML processing instructions are not supported</li>
+  <li>There is no provision for dealing with small differences in extremely 
+      lengthy CDATA sections</li>
+  <li>Currently the only difference representation supported is the OTA 
+      difference notation (however alternate representations may be developed
+	  and plugged in through extensions)</li>
+</ul>
+
+    <h2><a name="sysreq">System Requirements</a></h2>
+VMTools has the following prerequisites:
+<ul>
+  <li>You'll need a <a href="http://java.sun.com/j2se/">Java 2 Standard Edition</a> runtime environment 
+      (1.2 or above is fine). If you are running a 1.2 environment, you'll also need:
+    <ul>
+    <li>Java APIs for XML Processing (<a href="http://java.sun.com/xml/xml_jaxp.html">JAXP</a>)</li>
+	<li>A JAXP-compatible XML parser such as <a href="http://xml.apache.org/xerces-j/">Xerces</a> or 
+	    <a href="http://xml.apache.org/crimson/">Crimson</a></li>
+    </ul>
+  </li>
+  <li>You'll also need the <a href="http://www.jdom.org/">JDOM toolkit</a>. (We recommend beta 7 or above).</li>
+  <li>If you intend to rebuild the jars from source you will also need 
+      <a href="http://jakarta.apache.org/ant/">Jakarta Ant</a>.</li>
+  <li>and if you intend to build/run the regression tests you'll need a copy of the 
+      excellent testing framework <a href="http://www.junit.org/">JUnit</a>.</li>
+</ul>
+
+    <h2><a name="installation">Installation</a></h2>
+Details go here.
+
+    <h2><a name="build">Building from Source</a></h2>
+Make sure that you have installed all necessary <a href="#sysreq">pre-requisites</a>
+and your <code>$CLASSPATH</code> contains the required .jar files.
+The ant tool displays a list of available targets when invoked with the
+<code>-projecthelp</code> option. The following targets are available in the 
+enclosed ant build.xml script:
+<pre>
+ant -projecthelp
+Searching for build.xml ...
+Buildfile: ~/VMTools/build.xml
+Main targets:
+
+ all         default target; runs targets build and build-test
+ build       compiles the normal code into ./build/classes
+ build-test  compiles the test code into ./build/classes
+ clean       deletes all compiled code
+ docs        creates javadocs in ${docs}
+
+Subtargets:
+
+ init
+
+BUILD SUCCESSFUL
+
+Total time: 1 second
+</pre>
+To build a given target just use the form <code>ant targetname</code>
+e.g. to build all classes and all tests issue the command:
+<code>ant</code> to build the default target <code>all</code>.
+
+  <h2><a name="difficult">Why Updates are so Difficult</a></h2>
+Update processing in a message-driven environment is not easy, 
+and in a standards-based environment it's even more difficult.
+One camp wants to keep things simple and just send/receive the entire updated
+document. Another camp (the minimalist camp) wants to send a minimal difference
+representation so that the receiving end can apply the changes incrementally.
+A third camp wants to have access to both before and after images on the 
+server-side so that they can calculate the differences in their own 
+application-specific way.
+
+<p>The generic <code>OTA_Update</code> representation and this toolkit 
+allows all three camps to process messages in their preferred way.
+Read on to find out how.
+</p>
+
+  <h2><a name="conceptual">The 'diff' and 'patch' Conceptual Model</a></h2>
+This same problem has been solved generically and well for text-oriented documents.
+The well-known 'diff' utility uses sophisticated and well-known algorithms to compare
+two text documents (or data streams) and represent the differences between them.
+The difference representation is not very human-readable and a cottage-industry
+has built up around providing front-ends to 'diff' which give colorized/visual 
+representations of these differences.
+
+<p>However, 'diff's output is very machine intelligible and the 'patch' utility
+can take an original document, apply the diffs and generate an exact duplicate
+of the modified document.
+Essentially we have a simple equation: <code>new - old = diffs</code> from 
+which we can see that the useful corollary: <code>old + diffs = new</code>
+follows immediately. This demonstrates the utility of 'diff' and 'patch' 
+and this technology is at the core of all version control systems.</p>
+
+<p>Now as we design wonderful new data respresentations in XML wouldn't it be 
+useful if similar tools existed to perform similar operations on XML documents
+(or document fragments)? Unfortunately we can't use existing tools as XML is
+semantically very different from plain text. When we first started looking at
+this problem we found many people looking for solutions but only one 
+implementation (<a href="http://www.alphaworks.ibm.com/tech/xmldiffmerge/">XML Diff and Merge</a>)
+over at IBM's Alphaworks site. 
+However only binary object licenses are available and this utility didn't seem
+very adaptable to standard-specific applications (such as OTA).</p>
+
+    <h2><a name="utilities">Utilities and Examples</a></h2>
+The following programs are provided as examples of how to use the toolkit.
+These tools may prove to be useful in their own right.
+
+      <h3><a name="xmldiff">XmlDiff</a></h3>
+Generates the difference between two XML documents.
+<pre>
+Usage: java XmlDiff &lt;OriginalURL&gt; &lt;ModifiedURL&gt;
+</pre>
+Differences are generated to <code>stdout</code>.
+
+      <h3><a name="xmlpatch">XmlPatch</a></h3>
+Given a document and a difference document, produce a modified document:
+<pre>
+Usage: java XmlPatch &lt;OriginalURL&gt; &lt;DiffURL&gt;
+</pre>
+The modified document is generated to <code>stdout</code>.
+
+      <h3><a name="utilsrc">Source code</a></h3>
+	  Source for these utilities can be found in the <code>examples</code> 
+	  directory of the distribution:
+      <ul>
+        <li><a href="xmldiff.html">XmlDiff.java</a></li>
+		<li><a href="xmlpatch.html">XmlPatch.java</a></li>
+      </ul>
+  
+  </body>
+</html>

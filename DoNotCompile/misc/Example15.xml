@@ -1,0 +1,14 @@
+<OTA_UpdateRQ EchoToken="12345" TimeStamp="20001217T182259Z" ReqRespVersion="2">
+<UniqueId URL="http://vmguys.com/OTAEngine/" Type="Profile" Id="12345678" Instance="12"/>
+<Position XPath="/Profile/Customer/PersonName/MiddleName">
+<Element Operation="delete"/>
+</Position>
+<Position XPath="/Profile/Customer/RelatedTraveler/PersonName">
+<Element Operation="insert">
+<NameTitle>Ms.</NameTitle>
+</Element>
+</Position>
+<Position XPath="/Profile/Customer">
+<Attribute Name="Gender" Operation="insert" Value="Male"/>
+</Position>
+</OTA_UpdateRQ>

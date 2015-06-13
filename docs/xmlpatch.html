@@ -1,0 +1,136 @@
+<!DOCTYPE html PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<HTML>
+<HEAD>
+<TITLE>Enscript Output</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#1F00FF" ALINK="#FF0000" VLINK="#9900DD">
+<A NAME="top">
+<A NAME="file1">
+<H1>XmlPatch.java</H1>
+
+<PRE>
+<I><FONT COLOR="#B22222">/* ====================================================================
+ * The VM Systems, Inc. Software License, Version 1.0
+ *
+ * Copyright (c) 2001 VM Systems, Inc.  All rights reserved.
+ *
+ * THIS SOFTWARE IS PROVIDED PURSUANT TO THE TERMS OF THIS LICENSE.
+ * ANY USE, REPRODUCTION, OR DISTRIBUTION OF THE SOFTWARE OR ANY PART
+ * THEREOF CONSTITUTES ACCEPTANCE OF THE TERMS AND CONDITIONS HEREOF.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *
+ * 3. The end-user documentation included with the redistribution,
+ *    if any, must include the following acknowledgment:
+ *       &quot;This product includes software developed by 
+ *        VM Systems, Inc. (http://www.vmguys.com/).&quot;
+ *    Alternately, this acknowledgment may appear in the software itself,
+ *    if and wherever such third-party acknowledgments normally appear.
+ *
+ * 4. The names &quot;VM Systems&quot; must not be used to endorse or promote products 
+ *    derived from this software without prior written permission. For written
+ *    permission, please contact info@vmguys.com.
+ *
+ * 5. VM Systems, Inc. and any other person or entity that creates or
+ *    contributes to the creation of any modifications to the original
+ *    software specifically disclaims any liability to any person or
+ *    entity for claims brought based on infringement of intellectual
+ *    property rights or otherwise. No assurances are provided that the
+ *    software does not infringe on the property rights of others.
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE TITLE
+ * AND NON-INFRINGEMENT ARE DISCLAIMED. IN NO EVENT SHALL VM SYSTEMS, INC.,
+ * ITS SHAREHOLDERS, DIRECTORS OR EMPLOYEES BE LIABLE FOR ANY DIRECT, 
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING 
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+ * POSSIBILITY OF SUCH DAMAGE. EACH RECIPIENT OR USER IS SOLELY RESPONSIBLE
+ * FOR DETERMINING THE APPROPRIATENESS OF USING AND DISTRIBUTING THE SOFTWARE
+ * AND ASSUMES ALL RISKS ASSOCIATED WITH ITS EXERCISE OF RIGHTS HEREUNDER,
+ * INCLUDING BUT NOT LIMITED TO THE RISKS (INCLUDING COSTS) OF ERRORS,
+ * COMPLIANCE WITH APPLICABLE LAWS OR INTERRUPTION OF OPERATIONS.
+ * ====================================================================
+ */</FONT></I>
+
+
+<B><FONT COLOR="#A020F0">import</FONT></B> java.net.MalformedURLException;
+<B><FONT COLOR="#A020F0">import</FONT></B> java.net.URL;
+<B><FONT COLOR="#A020F0">import</FONT></B> org.jdom.*;
+<B><FONT COLOR="#A020F0">import</FONT></B> org.jdom.input.SAXBuilder;
+<B><FONT COLOR="#A020F0">import</FONT></B> org.jdom.output.XMLOutputter;
+<B><FONT COLOR="#A020F0">import</FONT></B> org.vmguys.vmtools.ota.OtaUpdate;
+<B><FONT COLOR="#A020F0">import</FONT></B> org.vmguys.vmtools.ota.UniqueId;
+<B><FONT COLOR="#A020F0">import</FONT></B> org.vmguys.vmtools.utils.*;
+<B><FONT COLOR="#A020F0">import</FONT></B> javax.xml.parsers.SAXParser;
+
+<I><FONT COLOR="#B22222">/**
+ * This is an application that uses OtaUpdate to apply an OTA
+ * update request to an XML URL to generate the updated version.
+ * The output is written to stdout.
+ */</FONT></I>
+<B><FONT COLOR="#A020F0">public</FONT></B> <B><FONT COLOR="#A020F0">class</FONT></B> XmlPatch {
+	<I><FONT COLOR="#B22222">// Creates an instance of the class, opens the files, and calls the go method.
+</FONT></I>
+	<B><FONT COLOR="#A020F0">public</FONT></B> <B><FONT COLOR="#A020F0">static</FONT></B> <B><FONT COLOR="#A020F0">void</FONT></B> main(String[] args) {
+		<B><FONT COLOR="#A020F0">if</FONT></B> (args.length == 2) {
+			<B><FONT COLOR="#A020F0">try</FONT></B>{
+				URL originalURL = <B><FONT COLOR="#A020F0">new</FONT></B> URL(args[0]);
+				URL updateURL   = <B><FONT COLOR="#A020F0">new</FONT></B> URL(args[1]);
+				<B><FONT COLOR="#A020F0">new</FONT></B> XmlPatch().go(originalURL, updateURL);
+
+			} <B><FONT COLOR="#A020F0">catch</FONT></B> (MalformedURLException mux) {
+				System.err.println(mux);
+			}
+		}
+		<B><FONT COLOR="#A020F0">else</FONT></B> {
+			System.err.println(<FONT COLOR="#BC8F8F"><B>&quot;usage: XmlPatch &lt;XmlURL&gt; &lt;UpdateRequestURL&gt;&quot;</FONT></B>);
+		}
+	}
+
+	<I><FONT COLOR="#B22222">/**
+	 * Reads the XML URLs to create a JDOM tree, then uses OtaUpdate
+	 * to generate the OTA update request.
+	 */</FONT></I>
+	<B><FONT COLOR="#A020F0">private</FONT></B> <B><FONT COLOR="#A020F0">void</FONT></B> go(URL originalURL, URL updateURL) {
+		<B><FONT COLOR="#A020F0">try</FONT></B> {
+			SAXBuilder sb = <B><FONT COLOR="#A020F0">new</FONT></B> SAXBuilder();
+
+			Document originalDoc = sb.build(originalURL);
+			Document updateDoc   = sb.build(updateURL);
+
+			OtaUpdate gu = <B><FONT COLOR="#A020F0">new</FONT></B> OtaUpdate(<B><FONT COLOR="#A020F0">false</FONT></B>);
+			UniqueId id = <B><FONT COLOR="#A020F0">new</FONT></B> UniqueId(<FONT COLOR="#BC8F8F"><B>&quot;Profile&quot;</FONT></B>, <FONT COLOR="#BC8F8F"><B>&quot;12345&quot;</FONT></B>);
+
+			Element newDoc = gu.applyDiffs(originalDoc.getRootElement(), updateDoc.getRootElement());
+
+			XMLOutputter xmlo = <B><FONT COLOR="#A020F0">new</FONT></B> XMLOutputter(<FONT COLOR="#BC8F8F"><B>&quot;  &quot;</FONT></B>, <B><FONT COLOR="#A020F0">true</FONT></B>);
+			xmlo.setTextNormalize(<B><FONT COLOR="#A020F0">true</FONT></B>);
+
+			xmlo.output(newDoc, System.out);
+			System.out.println();
+		}
+		<B><FONT COLOR="#A020F0">catch</FONT></B> (Exception e) {
+			e.printStackTrace();
+		}
+	}
+}
+</PRE>
+<HR>
+<ADDRESS>Generated by <A HREF="http://www.iki.fi/~mtr/genscript/">GNU enscript 1.6.1</A>.</ADDRESS>
+</BODY>
+</HTML>

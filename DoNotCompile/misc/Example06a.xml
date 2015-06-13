@@ -1,0 +1,8 @@
+<OTA_UpdateRQ ReqRespVersion="2">
+<UniqueId URL=" http://vmguys.com/OTAEngine/" Type="Profile" Id="12345678" Instance="8"/>
+<Position XPath="/Profile/Customer/TelephoneInfo/Telephone/AreaCityCode">
+<Element Operation="modify">
+<AreaCityCode>253</AreaCityCode>
+</Element>
+</Position>
+</OTA_UpdateRQ>

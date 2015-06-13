@@ -1,0 +1,6 @@
+<OTA_UpdateRQ ReqRespVersion="2">
+<UniqueId URL="http://vmguys.com/OTAEngine/" Type="Profile" Id="12345678" Instance="10"/>
+<Position XPath="/Profile/Customer/TelephoneInfo">
+<Attribute Name="PhoneUse" Operation="modify" Value="Home"/>
+</Position>
+</OTA_UpdateRQ>

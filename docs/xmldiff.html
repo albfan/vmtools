@@ -1,0 +1,174 @@
+<!DOCTYPE html PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<HTML>
+<HEAD>
+<TITLE>Enscript Output</TITLE>
+</HEAD>
+<BODY BGCOLOR="#FFFFFF" TEXT="#000000" LINK="#1F00FF" ALINK="#FF0000" VLINK="#9900DD">
+<A NAME="top">
+<A NAME="file1">
+<H1>XmlDiff.java</H1>
+
+<PRE>
+<I><FONT COLOR="#B22222">/* ====================================================================
+ * The VM Systems, Inc. Software License, Version 1.0
+ *
+ * Copyright (c) 2001 VM Systems, Inc.  All rights reserved.
+ *
+ * THIS SOFTWARE IS PROVIDED PURSUANT TO THE TERMS OF THIS LICENSE.
+ * ANY USE, REPRODUCTION, OR DISTRIBUTION OF THE SOFTWARE OR ANY PART
+ * THEREOF CONSTITUTES ACCEPTANCE OF THE TERMS AND CONDITIONS HEREOF.
+ *
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are permitted provided that the following conditions
+ * are met:
+ *
+ * 1. Redistributions of source code must retain the above copyright
+ *    notice, this list of conditions and the following disclaimer.
+ *
+ * 2. Redistributions in binary form must reproduce the above copyright
+ *    notice, this list of conditions and the following disclaimer in
+ *    the documentation and/or other materials provided with the
+ *    distribution.
+ *
+ * 3. The end-user documentation included with the redistribution,
+ *    if any, must include the following acknowledgment:
+ *       &quot;This product includes software developed by 
+ *        VM Systems, Inc. (http://www.vmguys.com/).&quot;
+ *    Alternately, this acknowledgment may appear in the software itself,
+ *    if and wherever such third-party acknowledgments normally appear.
+ *
+ * 4. The names &quot;VM Systems&quot; must not be used to endorse or promote products 
+ *    derived from this software without prior written permission. For written
+ *    permission, please contact info@vmguys.com.
+ *
+ * 5. VM Systems, Inc. and any other person or entity that creates or
+ *    contributes to the creation of any modifications to the original
+ *    software specifically disclaims any liability to any person or
+ *    entity for claims brought based on infringement of intellectual
+ *    property rights or otherwise. No assurances are provided that the
+ *    software does not infringe on the property rights of others.
+ *
+ * THIS SOFTWARE IS PROVIDED ``AS IS'' AND ANY EXPRESSED OR IMPLIED
+ * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE WARRANTIES
+ * OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE TITLE
+ * AND NON-INFRINGEMENT ARE DISCLAIMED. IN NO EVENT SHALL VM SYSTEMS, INC.,
+ * ITS SHAREHOLDERS, DIRECTORS OR EMPLOYEES BE LIABLE FOR ANY DIRECT, 
+ * INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES 
+ * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
+ * SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) 
+ * HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, 
+ * STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING 
+ * IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+ * POSSIBILITY OF SUCH DAMAGE. EACH RECIPIENT OR USER IS SOLELY RESPONSIBLE
+ * FOR DETERMINING THE APPROPRIATENESS OF USING AND DISTRIBUTING THE SOFTWARE
+ * AND ASSUMES ALL RISKS ASSOCIATED WITH ITS EXERCISE OF RIGHTS HEREUNDER,
+ * INCLUDING BUT NOT LIMITED TO THE RISKS (INCLUDING COSTS) OF ERRORS,
+ * COMPLIANCE WITH APPLICABLE LAWS OR INTERRUPTION OF OPERATIONS.
+ * ====================================================================
+ */</FONT></I>
+
+
+<B><FONT COLOR="#A020F0">import</FONT></B> java.net.MalformedURLException;
+<B><FONT COLOR="#A020F0">import</FONT></B> java.net.URL;
+<B><FONT COLOR="#A020F0">import</FONT></B> org.jdom.*;
+<B><FONT COLOR="#A020F0">import</FONT></B> org.jdom.input.SAXBuilder;
+<B><FONT COLOR="#A020F0">import</FONT></B> org.jdom.output.XMLOutputter;
+<B><FONT COLOR="#A020F0">import</FONT></B> org.vmguys.vmtools.ota.OtaUpdate;
+<B><FONT COLOR="#A020F0">import</FONT></B> org.vmguys.vmtools.ota.UniqueId;
+<B><FONT COLOR="#A020F0">import</FONT></B> org.vmguys.vmtools.utils.DomFactory;
+<B><FONT COLOR="#A020F0">import</FONT></B> org.vmguys.vmtools.utils.JdomDifferenceFinder;
+<B><FONT COLOR="#A020F0">import</FONT></B> org.vmguys.vmtools.utils.ProgressReporter;
+<B><FONT COLOR="#A020F0">import</FONT></B> javax.xml.parsers.SAXParser;
+
+<I><FONT COLOR="#B22222">/**
+ * This is an application that uses OtaUpdate to generate an
+ * OTA update request. It takes two XML filenames as input on the command
+ * line, and uses JdomDifferenceFinder to compare the first file to the
+ * second. The result is sent to stdout.
+ */</FONT></I>
+<B><FONT COLOR="#A020F0">public</FONT></B> <B><FONT COLOR="#A020F0">class</FONT></B> XmlDiff <B><FONT COLOR="#A020F0">implements</FONT></B> ProgressReporter {
+	<B><FONT COLOR="#A020F0">private</FONT></B> <B><FONT COLOR="#A020F0">int</FONT></B> greatestItemsProcessed;
+	
+	<I><FONT COLOR="#B22222">// Creates an instance of the class, opens the URLs, and calls the go method.
+</FONT></I>
+	<B><FONT COLOR="#A020F0">public</FONT></B> <B><FONT COLOR="#A020F0">static</FONT></B> <B><FONT COLOR="#A020F0">void</FONT></B> main(String[] args) {
+		<B><FONT COLOR="#A020F0">if</FONT></B> (args.length == 2) {
+			
+			<B><FONT COLOR="#A020F0">try</FONT></B> {
+				URL url1 = <B><FONT COLOR="#A020F0">new</FONT></B> URL(args[0]);
+				URL url2 = <B><FONT COLOR="#A020F0">new</FONT></B> URL(args[1]);
+				<B><FONT COLOR="#A020F0">new</FONT></B> XmlDiff().go(url1, url2);
+				
+			} <B><FONT COLOR="#A020F0">catch</FONT></B> (MalformedURLException mux) {
+				System.err.println(mux);
+			}
+		}
+		<B><FONT COLOR="#A020F0">else</FONT></B> {
+			System.err.println(<FONT COLOR="#BC8F8F"><B>&quot;usage: XmlDiff &lt;OriginalURL&gt; &lt;ModifiedURL&gt;&quot;</FONT></B>);
+		}
+	}
+
+	<I><FONT COLOR="#B22222">/**
+	 * Reads the XML files to create a JDOM tree, then uses OtaUpdate
+	 * to generate the OTA update request.
+	 */</FONT></I>
+	<B><FONT COLOR="#A020F0">private</FONT></B> <B><FONT COLOR="#A020F0">void</FONT></B> go(URL url1, URL url2) {
+		<B><FONT COLOR="#A020F0">try</FONT></B> {
+			SAXBuilder sb = <B><FONT COLOR="#A020F0">new</FONT></B> SAXBuilder();
+			sb.setFactory(<B><FONT COLOR="#A020F0">new</FONT></B> DomFactory());
+
+			System.out.println(<FONT COLOR="#BC8F8F"><B>&quot;parsing...&quot;</FONT></B>);
+			Document doc1 = sb.build(url1);
+			Document doc2 = sb.build(url2);
+
+			System.out.println(<FONT COLOR="#BC8F8F"><B>&quot;instantiating OtaUpdate...&quot;</FONT></B>);
+			OtaUpdate otaUpdate = <B><FONT COLOR="#A020F0">new</FONT></B> OtaUpdate(<B><FONT COLOR="#A020F0">false</FONT></B>);
+			otaUpdate.setProgressReporter(<B><FONT COLOR="#A020F0">this</FONT></B>);
+			greatestItemsProcessed = -1;
+			UniqueId id = <B><FONT COLOR="#A020F0">new</FONT></B> UniqueId(<FONT COLOR="#BC8F8F"><B>&quot;Profile&quot;</FONT></B>, <FONT COLOR="#BC8F8F"><B>&quot;12345&quot;</FONT></B>);
+
+			System.out.println(<FONT COLOR="#BC8F8F"><B>&quot;generating diffs...&quot;</FONT></B>);
+			Element diffs = otaUpdate.generateDiffs(doc1.getRootElement(), doc2.getRootElement(), id);
+
+			System.out.println(<FONT COLOR="#BC8F8F"><B>&quot;preparing to output diffs...&quot;</FONT></B>);
+			XMLOutputter xmlo = <B><FONT COLOR="#A020F0">new</FONT></B> XMLOutputter(<FONT COLOR="#BC8F8F"><B>&quot;  &quot;</FONT></B>, <B><FONT COLOR="#A020F0">true</FONT></B>);
+			xmlo.setTextNormalize(<B><FONT COLOR="#A020F0">true</FONT></B>);
+
+			System.out.println(<FONT COLOR="#BC8F8F"><B>&quot;outputting...&quot;</FONT></B>);
+			xmlo.output(diffs, System.out);
+			System.out.println();
+		}
+		<B><FONT COLOR="#A020F0">catch</FONT></B> (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	<I><FONT COLOR="#B22222">/**
+	 * Shows the progress of the computation. The method will be called
+	 * from time to time with the number of items processed and the
+	 * total number of items to be processed. In some cases it may be 
+	 * called more than once with the same value for itemsProcessed.
+	 */</FONT></I>
+	<B><FONT COLOR="#A020F0">public</FONT></B> <B><FONT COLOR="#A020F0">void</FONT></B> showProgress(<B><FONT COLOR="#A020F0">int</FONT></B> itemsProcessed, <B><FONT COLOR="#A020F0">int</FONT></B> totalItems) {
+		<I><FONT COLOR="#B22222">// Just show the output to the nearest 10.
+</FONT></I>		
+		<B><FONT COLOR="#A020F0">if</FONT></B> (itemsProcessed &lt; totalItems) {
+			<B><FONT COLOR="#A020F0">int</FONT></B> approxItemsProcessed = (itemsProcessed + 5) / 10 * 10;
+
+			<B><FONT COLOR="#A020F0">if</FONT></B> (approxItemsProcessed &gt; greatestItemsProcessed) {
+				System.err.print(<FONT COLOR="#BC8F8F"><B>&quot;\r&quot;</FONT></B> + approxItemsProcessed + <FONT COLOR="#BC8F8F"><B>&quot; of &quot;</FONT></B> + totalItems + <FONT COLOR="#BC8F8F"><B>&quot; (&quot;</FONT></B> + (itemsProcessed * 100 / totalItems) + <FONT COLOR="#BC8F8F"><B>&quot;%)   &quot;</FONT></B>);
+				greatestItemsProcessed = approxItemsProcessed;
+			}
+		}
+		<B><FONT COLOR="#A020F0">else</FONT></B> {
+			System.err.print(<FONT COLOR="#BC8F8F"><B>&quot;\r&quot;</FONT></B> + itemsProcessed + <FONT COLOR="#BC8F8F"><B>&quot; of &quot;</FONT></B> + totalItems + <FONT COLOR="#BC8F8F"><B>&quot; (100%)   &quot;</FONT></B>);
+			System.err.println();
+		}
+	}
+	
+}
+</PRE>
+<HR>
+<ADDRESS>Generated by <A HREF="http://www.iki.fi/~mtr/genscript/">GNU enscript 1.6.1</A>.</ADDRESS>
+</BODY>
+</HTML>

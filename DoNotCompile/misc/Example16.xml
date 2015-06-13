@@ -1,0 +1,35 @@
+<Profile>
+<Customer Gender="Male">
+<PersonName NameType="Default">
+<NameTitle>Mr.</NameTitle>
+<GivenName>George</GivenName>
+<SurName>Smith</SurName>
+</PersonName>
+<TelephoneInfo PhoneTech="Voice" PhoneUse="Home">
+<Telephone>
+<AreaCityCode>253</AreaCityCode>
+<PhoneNumber>813-8698</PhoneNumber>
+</Telephone>
+</TelephoneInfo>
+<PaymentForm>
+...
+</PaymentForm>
+<AddressInfo>
+<Address>
+<StreetNmbr>1200 Yakima St</StreetNmbr>
+<BldgRoom>Suite 800</BldgRoom>
+<CityName>Seattle</CityName>
+<StateProv PostalCode="98108">WA</StateProv>
+<CountryName>USA</CountryName>
+</Address>
+</AddressInfo>
+<RelatedTraveler Relation="Child">
+<PersonName>
+<NameTitle>Ms.</NameTitle>
+<GivenName>Amy</GivenName>
+<MiddleName>E.</MiddleName>
+<SurName>Smith</SurName>
+</PersonName>
+</RelatedTraveler>
+</Customer>
+</Profile>

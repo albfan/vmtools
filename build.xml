@@ -1,0 +1,90 @@
+<project name="VMTools" default="all" basedir=".">
+
+	<target name="all" depends="build,build-test" description="default target; runs targets build and build-test"/>
+
+	<target name="init">
+		<property name="build.compiler" value="modern"/>
+		<property name="build" value="./build"/>
+		<property name="classes" value="./build/classes"/>
+		<property name="src" value="./src"/>
+		<property name="test" value="./test"/>
+		<property name="examples" value="./examples"/>
+		<property name="dist" value="./dist"/>
+		<property name="docs" value="./docs/api"/>
+		<property name="name" value="vmtools"/>
+		<property name="version" value="0.5"/>
+		<property name="javadoc.link" value="http://java.sun.com/j2se/1.3/docs/api http://java.sun.com/products/jndi/1.2/javadoc  http://java.sun.com/products/jdbc/jdbc20.stdext.javadoc "/>
+	</target>
+
+	<target name="build" depends="init" description="compiles the normal code into ./build/classes and builds a jar">
+		<mkdir dir="${classes}"/>
+		<javac srcdir="${src}"      destdir="${classes}" includes="**/*.java" debug="on"/>
+		<javac srcdir="${examples}" destdir="${classes}" includes="**/*.java" debug="on"/>
+		<jar jarfile="./${name}-${version}.jar" basedir="${classes}" includes="**"/> 
+	</target>
+	
+	<target name="build-test" depends="init,build" description="compiles the test code into ./build/classes">
+		<mkdir dir="${classes}"/>
+		<javac srcdir="${test}" destdir="${classes}" includes="**/*.java" debug="on"/>
+	</target>
+	
+	<target name="uniqueid" depends="init">
+		<mkdir dir="${classes}"/>
+		<javac srcdir="${src}" destdir="${classes}" includes="**/UniqueId.java" debug="on"/>
+	</target>
+	
+	<target name="testjdom" depends="init">
+		<mkdir dir="${classes}"/>
+		<javac srcdir="${test}" destdir="${classes}" includes="**/TestJDOM.java" debug="on"/>
+	</target>
+	
+	<target name="clean" depends="init" description="deletes all compiled code and docs">
+		<delete dir="${build}"/>
+		<delete dir="${dist}"/>
+		<delete dir="${docs}"/>
+		<delete>
+			<fileset dir="." includes="**/*.class,**/${name}-${version}.jar,**/${name}-${version}-dist*" />
+		</delete>
+	</target>
+	
+        <target name="docs" depends="init" description="creates javadocs in ./docs/api">
+            <mkdir dir="${docs}"/>
+            <javadoc packagenames="org.vmguys.vmtools.utils,org.vmguys.vmtools.ota"
+                            sourcepath="${src}"
+                            destdir="${docs}"
+                            overview="overview.html"
+                            author="true"
+                            version="true"
+                            use="true"
+                            windowtitle="VM Systems XML Tools"
+                            doctitle="VM XML Tools"
+                            bottom="Copyright &#169; 2001 VM Systems, Inc. All Rights Reserved.">
+                <link href="${javadoc.link}"/>
+            </javadoc>
+        </target>
+
+	<target name="dist" depends="all,docs" description="Prepare a .zip and .tar.gz distribution">
+		<mkdir dir="${dist}/${name}-${version}"/>
+		<copy todir="${dist}/${name}-${version}">
+			<fileset dir="." excludes="**/build/**,**/dist/**"/>
+		</copy>
+		<zip  zipfile="${name}-${version}-dist.zip" basedir="${dist}"/>
+	    <tar  tarfile="${name}-${version}-dist.tar" basedir="${dist}"/>
+        <gzip zipfile="${name}-${version}-dist.tar.gz"  src="${name}-${version}-dist.tar"/>
+		<delete  file="${name}-${version}-dist.tar"/>
+	</target>
+	
+	<target name="test" depends="build-test" description="runs JUnit test org.vmguys.vmtools.utils.TestAll">
+		<!--
+			The user may not have this code in the CLASSPATH, so we'll set it explicitly here.
+			We'll set this path at the start of the classpath, so this version will be found
+			before any others that have the same package name. We can't, however, know where
+            the junit classes are located, so the user must have them set correctly in the
+            CLASSPATH before running this.
+		-->
+		<java classname="junit.textui.TestRunner" fork="yes" classpath="${classes}:${java.class.path}">
+			<arg value="org.vmguys.vmtools.utils.TestAll"/>
+		</java>
+	</target>
+
+</project>

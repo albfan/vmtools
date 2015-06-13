@@ -1,0 +1,32 @@
+<OTA_UpdateRQ ReqRespVersion="2">
+<UniqueId URL=" http://vmguys.com/OTAEngine/" Type="Profile" Id="12345678" Instance="8"/>
+<Position XPath="/Profile/Customer">
+<Subtree Operation="insert" Child="5">
+<RelatedTraveler Relation="Child" >
+<PersonName>
+<GivenName>Devin</GivenName>
+<MiddleName>R.</MiddleName>
+<SurName>Smith</SurName>
+</PersonName>
+</RelatedTraveler>
+</Subtree>
+<Subtree Operation="insert" Child="6">
+<RelatedTraveler Relation="Child" >
+<PersonName>
+<GivenName>Amy</GivenName>
+<MiddleName>E.</MiddleName>
+<SurName>Smith</SurName>
+</PersonName>
+</RelatedTraveler>
+</Subtree>
+<Subtree Operation="insert" Child="7">
+<RelatedTraveler Relation="Child" >
+<PersonName>
+<GivenName>Alfred</GivenName>
+<MiddleName>E.</MiddleName>
+<SurName>Newman</SurName>
+</PersonName>
+</RelatedTraveler>
+</Subtree>
+</Position>
+</OTA_UpdateRQ>

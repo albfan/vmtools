@@ -1,0 +1,15 @@
+<body>
+<p>This package contains classes that manipulate XML data.</p>
+
+<p>The primary class is <code>JdomDifferenceFinder</code>. It generates and applies difference files.
+If given two pieces of XML data, it will generate a difference file that will
+show the differences between the data. If given a piece of XML data and a difference file, 
+it will apply the update and return the modified data.</p>
+
+<p>The class that performs the work to find the differences between two pieces of
+XML data is <code>DifferenceFinder2</code>. It takes as input two JDOM trees and returns
+information about the minimal differences between the trees in a CostOps object.</p>
+
+<p>The remaining classes (<code>CostOps</code>, <code>XPath</code>,
+and the <code>XxxxxOperation</code> classes) all provide support for the previous classes.</p>
+</body>
