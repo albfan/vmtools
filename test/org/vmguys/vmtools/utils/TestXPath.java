@@ -95,7 +95,7 @@ import org.jdom.JDOMException;
  */
 public class TestXPath extends TestCase {
 	private Element tree1, tree2, surname, fantasy1;
-	private String surnameString;
+	private Object surnameObject;
 	private String xpathToSurname;
 	private String xpathToSurnameString;
 	private String xpathToFantasy1;
@@ -114,7 +114,7 @@ public class TestXPath extends TestCase {
 			throw new Exception("can't find SurName element");
 		xpathToSurname = "/Profile/Customer/PersonName/SurName";
 		
-		surnameString = (String)surname.getContent().get(0);
+		surnameObject = surname.getContent().get(0);
 		xpathToSurnameString = xpathToSurname + "/self::node()[1]";
 
 		fantasy1 = tree2.getChild("Customer").getChild("Fantasy");
@@ -206,7 +206,7 @@ public class TestXPath extends TestCase {
 		try {
 			e1 = XPath.getElement(tree1, xpathToSurnameString);
 			assertTrue("getElement returned null", e1 != null);
-			assertTrue("getElement returned incorrect element", e1 == surnameString);
+			assertTrue("getElement returned incorrect element", e1 == surnameObject);
 		}
 		catch (JDOMException jde) {
 			fail("caught JDOMException getting element: " + jde.getMessage());
@@ -245,7 +245,7 @@ public class TestXPath extends TestCase {
 
 	public void testGetPath2() {
 		try {
-			String xpath = XPath.getXPath(tree1, surnameString);
+			String xpath = XPath.getXPath(tree1, surnameObject);
 			assertTrue("got incorrect xpath", xpath.equals(xpathToSurnameString));
 		}
 		catch (JDOMException jde) {
